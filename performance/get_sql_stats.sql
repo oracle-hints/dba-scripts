@@ -16,16 +16,18 @@ col CPU_TIME_SECS format 99999999.99
 col USER_IO_WAIT_TIME_SECS format 99999999.99
 col APPLICATION_WAIT_TIME_SECS format 99999999.99
 col CONCURRENCY_WAIT_TIME_SECS format 99999999.99
+col AVG_SECS_PER_EXEC format 99999999.99999
 
 select ss.SQL_ID
       ,ss.PLAN_HASH_VALUE
       ,ss.SQL_FULLTEXT
       ,ss.EXECUTIONS
-      ,round(ss.ELAPSED_TIME/1000000,2)          as ELAPSED_TIME_SECS          -- Elapsed Time
-      ,round(ss.CPU_TIME/1000000,2)              as CPU_TIME_SECS              -- CPU Time
-      ,round(ss.USER_IO_WAIT_TIME/1000000,2)     as USER_IO_WAIT_TIME_SECS     -- User IO Wait Time  
-      ,round(ss.APPLICATION_WAIT_TIME/1000000,2) as APPLICATION_WAIT_TIME_SECS -- User IO Wait Time 
-      ,round(ss.CONCURRENCY_WAIT_TIME/1000000,2) as CONCURRENCY_WAIT_TIME_SECS -- Concurrency Wait Time  
+      ,round(ss.ELAPSED_TIME/1000000,2)                 as ELAPSED_TIME_SECS          -- Elapsed Time
+      ,round((ss.ELAPSED_TIME/1000000)/ss.EXECUTIONS,5) as AVG_SECS_PER_EXEC          -- Avg secs per execution
+      ,round(ss.CPU_TIME/1000000,2)                     as CPU_TIME_SECS              -- CPU Time
+      ,round(ss.USER_IO_WAIT_TIME/1000000,2)            as USER_IO_WAIT_TIME_SECS     -- User IO Wait Time  
+      ,round(ss.APPLICATION_WAIT_TIME/1000000,2)        as APPLICATION_WAIT_TIME_SECS -- User IO Wait Time 
+      ,round(ss.CONCURRENCY_WAIT_TIME/1000000,2)        as CONCURRENCY_WAIT_TIME_SECS -- Concurrency Wait Time  
   from V$SQLSTATS ss
 --
 -- Limit the Result Set
