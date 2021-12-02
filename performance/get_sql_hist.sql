@@ -46,15 +46,15 @@ select stat.SQL_ID
    and stat.SNAP_ID                    <= 999999
    and stat.INSTANCE_NUMBER            in (1,2) 
    and ss.BEGIN_INTERVAL_TIME          >= sysdate-30
-   and UPPER(stat.PARSING_SCHEMA_NAME) = '<schema name>'
-   and UPPER(txt.SQL_TEXT)             LIKE '<some string>' 
+   and UPPER(stat.PARSING_SCHEMA_NAME) = '<SCHEMA NAME>'
+   and UPPER(txt.SQL_TEXT)             LIKE '<%SOME STRING%>' 
 --   and stat.sql_id = '<sql id here>'
 -- Order the Output based on what yopu are looking for
 --order by stat.ELAPSED_TIME_DELTA desc
 --order by stat.CPU_TIME_DELTA desc
 --order by stat.IOWAIT_DELTA desc
 --order by stat.CCWAIT_DELTA desc
-order by AVG_SECS_PER_EXEC 
+order by AVG_SECS_PER_EXEC desc
 /
 SET VERIFY OFF
 SET LINESIZE 300
