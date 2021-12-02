@@ -1,0 +1,153 @@
+=========================
+Gradual Password Rollover
+=========================
+
+21c Feature Backported to 19.12
+https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/release-changes.html#GUID-51B57039-CBA5-4091-BCBE-98726C58F603
+
+1.Environment Check
+-------------------
+Oracle Binaries - 19.12.0.0.210720 (32904851)
+
+[oracle@db-node1 db191]$ cd $ORACLE_HOME/OPatch
+[oracle@db-node1 db191]$ ./opatch lspatches
+33187291;MERGE ON DATABASE RU 19.12.0.0.0 OF 31602782 32164034
+33144001;REGRESSION FIXING FOR BUG 33048277 - TRACKING BUG FOR RTI 23800902
+33009224;ARCHIVE LOGS FILLED WITH QUERIES ON FLASHBACK SYSTEM TABLE - SYS_FBA_BARRIERSCN.
+32662165;ORA-12801 &amp; ORA-22922  NONEXISTENT LOB VALUE ON EXADATA RAC WHEN CREATING INDEX IN PARALLEL
+32544464;EXADATA FLASH FAILURE TEST CAUSES CONTROL FILE EXTENT SET CORRUPTION - ORA-700 [KFFSCRUBDUMPEXTENTSET_ONSUSPICIOUSBLKS]
+32530202;WRONG RESULT IN CORRELATED SUBQUERY WITH FIX 27864047
+31002346;LNX64-21.1-RAC,+ASM STUCK AT RESYNC MORE THAN 7HRS
+30978304;ORA-20000 DURING IMPDP WITH STATS AND THE UNIQUE INDEX FOR THE PK IS NOT CREATED
+32916816;OCW RELEASE UPDATE 19.12.0.0.0 (32916816)
+32876380;OJVM RELEASE UPDATE: 19.12.0.0.210720 (32876380)
+32904851;Database Release Update : 19.12.0.0.210720 (32904851)
+
+OPatch succeeded.
+[oracle@db-node1 db191]$
+
+2. Compatible Parameter at 19.0.0
+---------------------------------
+SSQLcl: Release 21.1 Production on Tue Nov 30 11:05:41 2021
+
+Copyright (c) 1982, 2021, Oracle.  All rights reserved.
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.12.0.0.0
+
+SQL> show parameter compatible
+NAME              TYPE    VALUE
+----------------- ------- ------
+compatible        string  19.0.0
+noncdb_compatible boolean FALSE
+SQL>
+
+*** Done to confirm compatible parameter does not need to be changed to 19.12.0 for the feature to be available ***
+
+3. Check Application User & Profile
+-----------------------------------
+SQL> select profile,resource_name, limit from dba_profiles where profile like 'APP_PROF%';
+
+    PROFILE                RESOURCE_NAME                  LIMIT
+___________ ____________________________ ______________________
+APP_PROF    PASSWORD_VERIFY_FUNCTION     VERIFY_FUNCTION_11G
+APP_PROF    PASSWORD_REUSE_TIME          UNLIMITED
+APP_PROF    PASSWORD_REUSE_MAX           UNLIMITED
+APP_PROF    PASSWORD_LIFE_TIME           365
+APP_PROF    FAILED_LOGIN_ATTEMPTS        10
+APP_PROF    PASSWORD_LOCK_TIME           1
+APP_PROF    PASSWORD_GRACE_TIME          7
+APP_PROF    COMPOSITE_LIMIT              DEFAULT
+APP_PROF    SESSIONS_PER_USER            DEFAULT
+APP_PROF    CPU_PER_SESSION              DEFAULT
+APP_PROF    CPU_PER_CALL                 DEFAULT
+APP_PROF    LOGICAL_READS_PER_SESSION    DEFAULT
+APP_PROF    LOGICAL_READS_PER_CALL       DEFAULT
+APP_PROF    IDLE_TIME                    DEFAULT
+APP_PROF    CONNECT_TIME                 DEFAULT
+APP_PROF    PRIVATE_SGA                  DEFAULT
+APP_PROF    INACTIVE_ACCOUNT_TIME        DEFAULT
+APP_PROF    PASSWORD_ROLLOVER_TIME       DEFAULT
+
+18 rows selected.
+
+SQL> select username,account_status, profile from dba_users where username = 'APP_USER';
+
+   USERNAME    ACCOUNT_STATUS     PROFILE
+___________ _________________ ___________
+APP_USER    OPEN              APP_PROF
+
+SQL> alter user APP_USER identified by Passw0rd1;
+
+User APP_USER altered.
+
+SQL> connect APP_USER/Passw0rd1
+Connected.
+SQL> exit
+
+At this point the Application Users Profile has the Parameter PASSWORD_ROLLOVER_TIME value of default.  ie 0
+
+4.  Set the PASSWORD_ROLLOVER_TIME to desired value (between 1 hr and 60 days)
+------------------------------------------------------------------------------
+SQL> alter profile APP_PROF limit PASSWORD_ROLLOVER_TIME 1/24;
+
+Profile APP_PROF altered.
+
+SQL> select profile,resource_name, limit from dba_profiles where profile like 'APP_PROF%';
+
+    PROFILE                RESOURCE_NAME                  LIMIT
+___________ ____________________________ ______________________
+APP_PROF    PASSWORD_VERIFY_FUNCTION     VERIFY_FUNCTION_11G
+APP_PROF    PASSWORD_ROLLOVER_TIME       .0416
+APP_PROF    PASSWORD_REUSE_TIME          UNLIMITED
+APP_PROF    PASSWORD_REUSE_MAX           UNLIMITED
+APP_PROF    PASSWORD_LIFE_TIME           365
+APP_PROF    FAILED_LOGIN_ATTEMPTS        10
+APP_PROF    PASSWORD_LOCK_TIME           1
+APP_PROF    PASSWORD_GRACE_TIME          7
+APP_PROF    COMPOSITE_LIMIT              DEFAULT
+APP_PROF    SESSIONS_PER_USER            DEFAULT
+APP_PROF    CPU_PER_SESSION              DEFAULT
+APP_PROF    CPU_PER_CALL                 DEFAULT
+APP_PROF    LOGICAL_READS_PER_SESSION    DEFAULT
+APP_PROF    LOGICAL_READS_PER_CALL       DEFAULT
+APP_PROF    IDLE_TIME                    DEFAULT
+APP_PROF    CONNECT_TIME                 DEFAULT
+APP_PROF    PRIVATE_SGA                  DEFAULT
+APP_PROF    INACTIVE_ACCOUNT_TIME        DEFAULT
+18 rows selected.
+
+SQL>
+
+5. Change the Application Users Password
+----------------------------------------
+
+SQL> alter user app_user identified by Passw0rd2;
+
+User APP_USER altered.
+
+SQL>
+
+6. Test Using Both Passwords
+----------------------------
+SQL> connect app_user/Passw0rd1;
+Connected.
+SQL> connect app_user/Passw0rd2;
+Connected.
+SQL>
+
+7. Wait for the PASSWORD_ROLLOVER_TIME to Lapse
+-----------------------------------------------
+SQL> connect app_user/Passw0rd1;
+  USER          = app_user
+  URL           = jdbc:oracle:thin:@localhost:5523/db191
+  Error Message = ORA-01017: invalid username/password; logon denied
+ 
+Warning: You are no longer connected to ORACLE.
+SQL>
+
+SQL> connect app_user/Passw0rd2
+Connected.
+SQL>
+
