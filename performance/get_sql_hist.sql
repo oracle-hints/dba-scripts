@@ -24,10 +24,11 @@ select stat.SQL_ID
       ,stat.PLAN_HASH_VALUE
       ,stat.EXECUTIONS_DELTA
       ,stat.PARSING_SCHEMA_NAME
-      ,round(stat.ELAPSED_TIME_DELTA/1000000,2) as ELAPSED_TIME_DELTA_SECS      -- Elapsed Time
-      ,round(stat.CPU_TIME_DELTA/1000000,2) as CPU_TIME_DELTA_SECS              -- CPU Time
-      ,round(stat.IOWAIT_DELTA/1000000,2) as IOWAIT_DELTA_SECS                  -- IO Wait
-      ,round(stat.CCWAIT_DELTA/1000000,2) as CCWAIT_DELTA_SECS                  -- Concurrency Wait
+      ,round(stat.ELAPSED_TIME_DELTA/1000000,2)                         as ELAPSED_TIME_DELTA_SECS      -- Elapsed Time
+      ,round((stat.ELAPSED_TIME_DELTA/1000000)/stat.EXECUTIONS_DELTA,5) as AVG_SECS_PER_EXEC            -- Avg time per execution
+      ,round(stat.CPU_TIME_DELTA/1000000,2)                             as CPU_TIME_DELTA_SECS          -- CPU Time
+      ,round(stat.IOWAIT_DELTA/1000000,2)                               as IOWAIT_DELTA_SECS            -- IO Wait
+      ,round(stat.CCWAIT_DELTA/1000000,2)                               as CCWAIT_DELTA_SECS            -- Concurrency Wait
       ,stat.SNAP_ID 
       ,ss.END_INTERVAL_TIME 
   from DBA_HIST_SQLSTAT stat
@@ -44,13 +45,15 @@ select stat.SQL_ID
    and stat.SNAP_ID                    <= 999999
    and stat.INSTANCE_NUMBER            in (1,2) 
    and ss.BEGIN_INTERVAL_TIME          >= sysdate-30
-   and UPPER(stat.PARSING_SCHEMA_NAME) = 'HR'
-   and UPPER(txt.SQL_TEXT)             LIKE '%EMPLOYEES%' 
+   and UPPER(stat.PARSING_SCHEMA_NAME) = '<schema name>'
+   and UPPER(txt.SQL_TEXT)             LIKE '<some string>' 
+--   and stat.sql_id = '<sql id here>'
 -- Order the Output based on what yopu are looking for
 --order by stat.ELAPSED_TIME_DELTA desc
 --order by stat.CPU_TIME_DELTA desc
 --order by stat.IOWAIT_DELTA desc
-order by stat.CCWAIT_DELTA desc
+--order by stat.CCWAIT_DELTA desc
+order by AVG_SECS_PER_EXEC 
 /
 SET VERIFY OFF
 SET LINESIZE 300
