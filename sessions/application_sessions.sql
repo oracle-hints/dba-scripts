@@ -1,6 +1,8 @@
-
-
-
+-------------------------------------------------------------------------------------
+-- https://oracle-hints.com/dba-scripts/sessions/application_sessions.sql
+-- Displays sessions from application users that are connected to the database
+-- @application_sessions.sql
+-------------------------------------------------------------------------------------
 set heading on;
 set lines 180 pages 9999;
 col pid format a10;
@@ -21,5 +23,5 @@ select
 from v$session b, v$process a
 where
 b.paddr = a.addr
-and (b.username like '%<username1>%' or b.username like '%<username2>%')
+and (b.username like '%&1%')
 order by spid;
