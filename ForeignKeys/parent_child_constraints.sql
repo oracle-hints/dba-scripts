@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------------
 -- https://oracle-hints.com/dba-scripts/ForeignKeys/parent_child_constraints.sql
 -- Lists the Child Tables for a Supplied Parent Table based RI
--- @parent_child_constraints.sql
+-- @parent_child_constraints.sql 
 -------------------------------------------------------------------------------------
 SET VERIFY OFF
 SET LINESIZE 300
