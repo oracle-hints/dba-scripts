@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------
--- https://oracle-hints.com/dba/sql_scripts/performance/list_child_tables.sql
+-- https://oracle-hints.com/dba-scripts/ForeignKeys/list_child_tables.sql
 -- Lists the Child Tables for a Supplied Parent Table based on the FK Definition
 -- @list_child_tables.sql
 -------------------------------------------------------------------------------------
