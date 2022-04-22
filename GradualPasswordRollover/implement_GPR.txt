@@ -150,4 +150,3 @@ SQL>
 SQL> connect app_user/Passw0rd2
 Connected.
 SQL>
-
