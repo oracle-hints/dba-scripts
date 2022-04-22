@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------------
 -- https://oracle-hints.com/dba-scripts/ForeignKeys/list_child_tables.sql
--- Lists the Child Tables for a Supplied Parent Table based on the FK Definition
+-- Lists the Child Tables for a Supplied Parent Table based on a constraint
 -- @list_child_tables.sql
 -------------------------------------------------------------------------------------
 SET VERIFY OFF
