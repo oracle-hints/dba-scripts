@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------
--- https://oracle-hints.com/dba/sql_scripts/performance/get_sql_from_sid.sql
+-- https://oracle-hints.com/dba-scripts/monitor/get_sql_from_sid.sql
 -- Displays SQL statement for a sid number
 -- @get_sql_from_sid
 -------------------------------------------------------------------------------------
