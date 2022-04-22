@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------
--- https://oracle-hints.com/dba/sql_scripts/performance/get_fk_for_table.sql
+-- https://oracle-hints.com/dba-scripts/ForeignKeys/get_fk_for_table.sql
 -- Lists the Foreign Keys defined on a Table
 -- @get_fk_for_table.sql
 -------------------------------------------------------------------------------------
