@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------
--- https://oracle-hints.com/dba/sql_scripts/performance/get_sql_cache.sql
+-- https://oracle-hints.com/dba-scripts/performance/get_sql_cache.sql
 -- Displays SQL statements from SQL Cache Views
 -- @get_sql_cache
 -------------------------------------------------------------------------------------
