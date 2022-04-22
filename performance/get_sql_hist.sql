@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------
--- https://oracle-hints.com/dba/sql_scripts/performance/get_sql_hist.sql
+-- https://oracle-hints.com/dba-scripts/performance/get_sql_hist.sql
 -- Displays SQL statements from DBA_HIST ... views
 -- @get_sql_hist
 -------------------------------------------------------------------------------------
