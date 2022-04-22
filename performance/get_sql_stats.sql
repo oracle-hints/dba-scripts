@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------
--- https://oracle-hints.com/dba/sql_scripts/performance/get_sql_stats.sql
+-- https://oracle-hints.com/dba-scripts/performance/get_sql_stats.sql
 -- Displays SQL statement execution stats from v$sqlstats view
 -- @get_sql_stats
 -------------------------------------------------------------------------------------
